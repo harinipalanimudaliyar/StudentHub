@@ -1,0 +1,90 @@
+const COURSES = ['App Dev', 'Web Sec', 'Dist Comp', 'AI', 'ML', 'Compiler', 'Networks'];
+
+export function initSchedule() {
+    const container = document.getElementById('course-panels-container');
+    let schedules = JSON.parse(localStorage.getItem('course_schedules')) || {};
+
+    container.innerHTML = '';
+
+    COURSES.forEach(course => {
+        if (!schedules[course]) schedules[course] = [];
+
+        const card = document.createElement('div');
+        card.className = 'course-panel-card';
+        card.innerHTML = `
+            <h4><i class="fa-solid fa-book-open"></i> ${course}</h4>
+            <div class="task-input-row">
+                <input type="text" id="task-input-${course}" placeholder="Assignment title or task description...">
+                <input type="date" id="date-input-${course}">
+                <button class="btn-accent add-task-btn" data-course="${course}"><i class="fa-solid fa-plus"></i> Add Task</button>
+            </div>
+            <ul class="task-list" id="task-list-${course}"></ul>
+        `;
+        container.appendChild(card);
+        renderTasks(course);
+    });
+
+    container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.add-task-btn');
+        if (btn) {
+            const course = btn.getAttribute('data-course');
+            const textInput = document.getElementById(`task-input-${course}`);
+            const dateInput = document.getElementById(`date-input-${course}`);
+            const taskText = textInput.value.trim();
+            const deadline = dateInput.value;
+
+            if (taskText) {
+                schedules[course].push({ text: taskText, deadline: deadline || 'No deadline' });
+                localStorage.setItem('course_schedules', JSON.stringify(schedules));
+                textInput.value = '';
+                dateInput.value = '';
+                renderTasks(course);
+                scheduleNativeReminder(course, taskText);
+            }
+        }
+    });
+
+    function renderTasks(course) {
+        const listEl = document.getElementById(`task-list-${course}`);
+        listEl.innerHTML = '';
+        schedules[course].forEach((task, index) => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            li.innerHTML = `
+                <div class="task-info-group">
+                    <span>${task.text}</span>
+                    <span class="task-deadline-tag"><i class="fa-regular fa-clock"></i> Due: ${task.deadline}</span>
+                </div>
+                <div class="task-actions">
+                    <span style="font-size:0.75rem; color:var(--accent);"><i class="fa-solid fa-bell"></i> Notified</span>
+                    <button class="btn-secondary delete-task" data-course="${course}" data-index="${index}"><i class="fa-solid fa-check"></i> Done</button>
+                </div>
+            `;
+            listEl.appendChild(li);
+        });
+    }
+
+    container.addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.delete-task');
+        if (delBtn) {
+            const course = delBtn.getAttribute('data-course');
+            const index = delBtn.getAttribute('data-index');
+            schedules[course].splice(index, 1);
+            localStorage.setItem('course_schedules', JSON.stringify(schedules));
+            renderTasks(course);
+        }
+    });
+}
+
+function scheduleNativeReminder(course, taskText) {
+    document.addEventListener('deviceready', () => {
+        if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification) {
+            window.cordova.plugins.notification.local.schedule({
+                id: new Date().getTime(),
+                title: `Academic Alert: ${course}`,
+                text: taskText,
+                trigger: { at: new Date(new Date().getTime() + 60 * 1000) }
+            });
+        }
+    }, false);
+}

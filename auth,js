@@ -1,0 +1,36 @@
+export function initAuth(onSuccess) {
+    const form = document.getElementById('login-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const userError = document.getElementById('user-error');
+    const passError = document.getElementById('pass-error');
+
+    const userRegex = /^[a-zA-Z0-9]{5,}$/;
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        if (!userRegex.test(usernameInput.value)) {
+            userError.textContent = "Minimum 5 chars, alphanumeric keys only.";
+            userError.classList.add('visible');
+            isValid = false;
+        } else {
+            userError.classList.remove('visible');
+        }
+
+        if (!passRegex.test(passwordInput.value)) {
+            passError.textContent = "Min 8 chars (1 uppercase, 1 lowercase, 1 number required).";
+            passError.classList.add('visible');
+            isValid = false;
+        } else {
+            passError.classList.remove('visible');
+        }
+
+        if (isValid) {
+            localStorage.setItem('auth_user', usernameInput.value);
+            onSuccess();
+        }
+    });
+}

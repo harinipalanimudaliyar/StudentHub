@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title>T.J.S. Student Smart Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- VIEW 1: ROLE-BASED LOGIN GATEWAY -->
+    <div id="auth-view" class="view-container active">
+        <div class="auth-card">
+            <div class="logo-badge"><i class="fa-solid fa-graduation-cap"></i></div>
+            <h2>T.J.S. Engineering College</h2>
+            <p class="subtitle">Smart Attendance & Schedule Portal</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>FULL NAME</label>
+                    <input type="text" id="login-name" placeholder="e.g. Harini Palani" required>
+                </div>
+                <div class="input-group">
+                    <label>DEPARTMENT & YEAR</label>
+                    <input type="text" id="login-dept" placeholder="e.g. CSE - AI & ML (2nd Year)" required>
+                </div>
+                <div class="input-group">
+                    <label>ROLL NUMBER / ID</label>
+                    <input type="text" id="login-roll" placeholder="e.g. TJS2026CSE01" required>
+                </div>
+                <div class="input-group">
+                    <label>SELECT USER ROLE</label>
+                    <select id="login-role" class="styled-select" required>
+                        <option value="" disabled selected>Choose your portal access...</option>
+                        <option value="cr">Class Representative (CR)</option>
+                        <option value="student">General Student</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Enter Portal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW 2: DASHBOARD WORKSPACE -->
+    <div id="workspace-view" class="view-container">
+        <header class="app-header">
+            <div class="header-user-info">
+                <span id="user-display-badge" class="role-badge-tag">CR</span>
+                <div>
+                    <h3 id="header-username">User Name</h3>
+                    <p id="header-meta">Department & Roll</p>
+                </div>
+            </div>
+            <button id="logout-btn" class="btn-secondary"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+        </header>
+
+        <main class="workspace-content">
+            <div class="workspace-tabs">
+                <button class="tab-btn active" data-tab="attendance-tab"><i class="fa-solid fa-clipboard-user"></i> Attendance</button>
+                <button class="tab-btn" data-tab="schedule-tab"><i class="fa-solid fa-list-check"></i> Assignments & Reminders</button>
+            </div>
+
+            <!-- ATTENDANCE TAB SECTION -->
+            <section id="attendance-tab" class="tab-section active">
+                <div class="card-header">
+                    <h3 id="attendance-title">Department Attendance Matrix</h3>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button id="student-qr-scan-btn" class="btn-accent" style="display:none;"><i class="fa-solid fa-qrcode"></i> Scan QR Check-In</button>
+                        <button id="export-csv" class="btn-secondary" style="display:none;"><i class="fa-solid fa-download"></i> Download HOD Report</button>
+                    </div>
+                </div>
+                <div id="attendance-container">
+                    <!-- Dynamic view -->
+                </div>
+            </section>
+
+            <!-- SCHEDULE & ASSIGNMENTS TAB SECTION -->
+            <section id="schedule-tab" class="tab-section">
+                <div class="card-header">
+                    <h3 id="schedule-header-title">Active Class Assignments & Deadlines</h3>
+                    <div id="cr-controls-banner" style="display:none;">
+                        <button id="open-new-task-modal" class="btn-accent"><i class="fa-solid fa-plus"></i> Post New Assignment</button>
+                    </div>
+                </div>
+                <div id="assignments-stack" class="panels-stack">
+                    <!-- Dynamic assignments -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- CR POST ASSIGNMENT MODAL -->
+    <div id="task-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Post New Assignment / Deadline</h3>
+            <form id="task-form">
+                <div class="input-group">
+                    <label>COURSE / SUBJECT</label>
+                    <select id="task-course" class="styled-select" required>
+                        <option value="Distributed Computing">Distributed Computing</option>
+                        <option value="Natural Language Processing">Natural Language Processing</option>
+                        <option value="Deep Learning for Vision">Deep Learning for Vision</option>
+                        <option value="Cryptography and Cyber Security">Cryptography and Cyber Security</option>
+                        <option value="App Development">App Development</option>
+                        <option value="Web Application Security">Web Application Security</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>ASSIGNMENT TITLE</label>
+                    <input type="text" id="task-title-input" placeholder="e.g. Lab Report 3 Submission" required>
+                </div>
+                <div class="input-group">
+                    <label>DEADLINE DATE & TIME</label>
+                    <input type="datetime-local" id="task-deadline-input" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="close-modal" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Publish to Class</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CR ADD STUDENT MODAL -->
+    <div id="student-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Add Student to Roster</h3>
+            <form id="student-form">
+                <div class="input-group">
+                    <label>STUDENT FULL NAME</label>
+                    <input type="text" id="new-student-name" placeholder="e.g. Rahul Sharma" required>
+                </div>
+                <div class="input-group">
+                    <label>ROLL NUMBER / ID</label>
+                    <input type="text" id="new-student-roll" placeholder="e.g. TJS2026CSE45" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="close-student-modal" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STUDENT QR CHECK-IN MODAL -->
+    <div id="qr-scan-modal" class="modal-overlay">
+        <div class="modal-card" style="text-align:center;">
+            <h3><i class="fa-solid fa-qrcode" style="color:var(--primary);"></i> Live QR Attendance Check-In</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">Enter or scan the secure token provided by your CR to instantly mark your attendance.</p>
+            <form id="qr-form">
+                <div class="input-group">
+                    <label>SECURE SESSION CODE</label>
+                    <input type="text" id="qr-token-input" placeholder="e.g. TJS-ATTEND-2026" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="close-qr-modal" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Verify & Mark Present</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
